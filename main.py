@@ -1,0 +1,3 @@
+from ddpg import start_actor_critic_algorithm_unity
+
+start_actor_critic_algorithm_unity()

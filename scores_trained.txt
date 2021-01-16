@@ -1,0 +1,2 @@
+
+Episode 0 Time 80.08259558677673 Score: 29.14049934865907(1.0 of optimum) max Score: 29.14049934865907
