@@ -7,17 +7,16 @@ import matplotlib.pyplot as plt
 import torch
 
 from agent import Agent
-from hyperparameters import Hyperparameters
+from hyperparameters import *
 from replay_buffer import ReplayBuffer
 
 
-def start_actor_critic_algorithm_unity():
-    param = Hyperparameters()
+def start_actor_critic_algorithm():
     from unityagents import UnityEnvironment
     env = UnityEnvironment(file_name='./Reacher_20_Windows_x86_64/Reacher.exe')
     brain_name = env.brain_names[0]
     brain = env.brains[brain_name]
-    env_info = env.reset(train_mode=param.TRAINMODE)[brain_name]
+    env_info = env.reset(train_mode=TRAINMODE)[brain_name]
     # number of agents
     num_agents = len(env_info.agents)
     print('Number of agents:', num_agents)
@@ -29,27 +28,26 @@ def start_actor_critic_algorithm_unity():
     state_dim = states.shape[1]
     print('# dimensions of each state:', state_dim)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    ddpg(env, brain_name, num_agents, state_dim, action_dim, 0, device, param)
+    ddpg(env, brain_name, num_agents, state_dim, action_dim, 0, device)
 
 
-def ddpg(env, brain_name, nr_agents, state_dimension, action_dimension, seed, device, param):
-    filename_scores = "scores_garbage.txt"
+def ddpg(env, brain_name, nr_agents, state_dimension, action_dimension, seed, device):
+    filename_scores = "Scores/scores_garbage.txt"
     all_scores = []
     all_average_scores = []
     scores_window = deque(maxlen=100)
     print_to_file("", filename_scores, True)
     agents = []
-    agent = Agent(state_dimension, action_dimension, seed, device, param)
+    agent = Agent(state_dimension, action_dimension, seed, device)
     for i in range(nr_agents):
-        # agents.append(Agent(state_dimension, action_dimension, seed,device,param))
         agents.append(agent)
-    shared_replay_buffer = ReplayBuffer(action_dimension, param.BUFFER_SIZE, param.BATCH_SIZE, seed, device)
+    shared_replay_buffer = ReplayBuffer(action_dimension, BUFFER_SIZE, BATCH_SIZE, seed, device)
     max_score = 0
-    for i_episode in range(param.MAX_NR_EPISODES):
+    for i_episode in range(MAX_NR_EPISODES):
         start_time = time.time()
         for agent in agents:
             agent.reset()
-        env_info = env.reset(train_mode=param.TRAINMODE)[brain_name]  # reset the environment
+        env_info = env.reset(train_mode=TRAINMODE)[brain_name]  # reset the environment
         states = env_info.vector_observations  # get the current state (for each agent)
         # initialize the score (for each agent)
         scores = np.zeros(nr_agents)
@@ -69,10 +67,10 @@ def ddpg(env, brain_name, nr_agents, state_dimension, action_dimension, seed, de
                 shared_replay_buffer.add(state, action, reward, next_state, done)
 
             # if enough samples are available in memory, every agent learns separately!
-            if step % param.UPDATE_EVERY == 0 and len(
-                    shared_replay_buffer) > agent.param.BATCH_SIZE and param.TRAINMODE:
-                for i in range(param.NR_UPDATES):
-                    agent.learn(param.GAMMA, shared_replay_buffer)
+            if step % UPDATE_EVERY == 0 and len(
+                    shared_replay_buffer) > BATCH_SIZE and TRAINMODE:
+                for i in range(NR_UPDATES):
+                    agent.learn(GAMMA, shared_replay_buffer)
 
             states = next_states
 
@@ -89,17 +87,17 @@ def ddpg(env, brain_name, nr_agents, state_dimension, action_dimension, seed, de
         print_to_file("Episode " + str(i_episode) + " Time " + str(time_for_episode) + " Score: " + str(
             scores.mean()) + "(" + str(scores.mean() / max_score) + " of optimum) max Score: " + str(max_score),
                       filename_scores, False)
-        if (param.SAVE):
+        if (SAVE):
             agent.save_networks()
         print("")
         print(
             'Episode {}\tTime {}\tScore this episode (averaged over agents): {:.2f}\tAverage Score last 100 episodes (averaged over agents): {:.2f}'.format(
                 i_episode, time_for_episode, scores.mean(), np.mean(scores_window)))
 
-        if np.mean(scores_window) >= param.VAL_ENV_SOLVED:
+        if np.mean(scores_window) >= VAL_ENV_SOLVED:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode - 100,
                                                                                          np.mean(scores_window)))
-            if param.PLOT:
+            if PLOT:
                 # plot the scores
                 fig = plt.figure()
                 ax = fig.add_subplot(111)
@@ -108,7 +106,7 @@ def ddpg(env, brain_name, nr_agents, state_dimension, action_dimension, seed, de
                 plt.ylabel('Score')
                 plt.xlabel('Episode #')
                 plt.legend()
-                plt.savefig(param.PLOTNAME)
+                plt.savefig("Scores/"+PLOTNAME)
                 plt.show()
             break
 

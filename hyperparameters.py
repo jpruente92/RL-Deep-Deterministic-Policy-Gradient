@@ -18,25 +18,3 @@ LR_ACTOR = 0.00005        # learning rate of the actor
 LR_CRITIC = 0.0001       # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
 
-class Hyperparameters():
-    def __init__(self):
-        self.LOAD=LOAD
-        self.FILENAME_FOR_LOADING=FILENAME_FOR_LOADING
-        self.SAVE=SAVE
-        self.FILENAME_FOR_SAVING=FILENAME_FOR_SAVING
-        self.PLOT=PLOT
-        self.PLOTNAME=PLOTNAME
-        self.TRAINMODE=TRAINMODE
-        self.VAL_ENV_SOLVED=VAL_ENV_SOLVED
-
-
-        self.MAX_NR_EPISODES=MAX_NR_EPISODES
-        self.UPDATE_EVERY=UPDATE_EVERY
-        self.NR_UPDATES=NR_UPDATES
-        self.BUFFER_SIZE=BUFFER_SIZE
-        self.BATCH_SIZE=BATCH_SIZE
-        self.GAMMA=GAMMA
-        self.TAU=TAU
-        self.LR_ACTOR=LR_ACTOR
-        self.LR_CRITIC=LR_CRITIC
-        self.WEIGHT_DECAY=WEIGHT_DECAY

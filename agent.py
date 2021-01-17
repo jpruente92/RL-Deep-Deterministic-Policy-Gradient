@@ -8,27 +8,28 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
+from hyperparameters import *
 
 
 class Agent():
 
-    def __init__(self, state_size, action_size, random_seed,device,param):
+    def __init__(self, state_size, action_size, random_seed,device):
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
         self.device=device
 
         # Policy/Actor Network (w/ Target Network)
-        self.policy_network_local = Policy_network(state_size, action_size, random_seed,param.FILENAME_FOR_LOADING+"policy_local.pth",param).to(device)
-        self.policy_network_target = Policy_network(state_size, action_size, random_seed,param.FILENAME_FOR_LOADING+"policy_target.pth",param).to(device)
-        self.policy_network_optimizer = optim.Adam(self.policy_network_local.parameters(), lr=param.LR_ACTOR)
+        self.policy_network_local = Policy_network(state_size, action_size, random_seed,"Neural_networks/"+FILENAME_FOR_LOADING+"policy_local.pth").to(device)
+        self.policy_network_target = Policy_network(state_size, action_size, random_seed,"Neural_networks/"+FILENAME_FOR_LOADING+"policy_target.pth").to(device)
+        self.policy_network_optimizer = optim.Adam(self.policy_network_local.parameters(), lr=LR_ACTOR)
 
         # Qvalue/Critic Network (w/ Target Network)
-        self.qvalue_network_local = Q_network(state_size, action_size, random_seed,param.FILENAME_FOR_LOADING+"qvalue_local.pth",param).to(device)
-        self.qvalue_network_target = Q_network(state_size, action_size, random_seed,param.FILENAME_FOR_LOADING+"qvalue_target.pth",param).to(device)
-        self.qvalue_network_optimizer = optim.Adam(self.qvalue_network_local.parameters(), lr=param.LR_CRITIC, weight_decay=param.WEIGHT_DECAY)
+        self.qvalue_network_local = Q_network(state_size, action_size, random_seed,"Neural_networks/"+FILENAME_FOR_LOADING+"qvalue_local.pth").to(device)
+        self.qvalue_network_target = Q_network(state_size, action_size, random_seed,"Neural_networks/"+FILENAME_FOR_LOADING+"qvalue_target.pth").to(device)
+        self.qvalue_network_optimizer = optim.Adam(self.qvalue_network_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
 
-        self.param=param
+
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
 
@@ -37,7 +38,7 @@ class Agent():
     def act(self, state):
         state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
         action=self.policy_network_local.evaluate(state,False).cpu().data.numpy()
-        if self.param.TRAINMODE:
+        if TRAINMODE:
             action += self.noise.sample()
         return np.clip(action, -1, 1)
 
@@ -73,18 +74,18 @@ class Agent():
         self.policy_network_optimizer.step()
 
         # ----------------------- update target networks ----------------------- #
-        self.soft_update(self.qvalue_network_local, self.qvalue_network_target, self.param.TAU)
-        self.soft_update(self.policy_network_local, self.policy_network_target, self.param.TAU)
+        self.soft_update(self.qvalue_network_local, self.qvalue_network_target, TAU)
+        self.soft_update(self.policy_network_local, self.policy_network_target, TAU)
 
     def soft_update(self, local_model, target_model, tau):
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
 
     def save_networks(self):
-        self.policy_network_local.save(self.param.FILENAME_FOR_SAVING+"policy_local.pth")
-        self.policy_network_target.save(self.param.FILENAME_FOR_SAVING+"policy_target.pth")
-        self.qvalue_network_local.save(self.param.FILENAME_FOR_SAVING+"qvalue_local.pth")
-        self.qvalue_network_target.save(self.param.FILENAME_FOR_SAVING+"qvalue_target.pth")
+        self.policy_network_local.save("Neural_networks/"+FILENAME_FOR_SAVING+"policy_local.pth")
+        self.policy_network_target.save("Neural_networks/"+FILENAME_FOR_SAVING+"policy_target.pth")
+        self.qvalue_network_local.save("Neural_networks/"+FILENAME_FOR_SAVING+"qvalue_local.pth")
+        self.qvalue_network_target.save("Neural_networks/"+FILENAME_FOR_SAVING+"qvalue_target.pth")
 
 class OUNoise:
     """Ornstein-Uhlenbeck process."""

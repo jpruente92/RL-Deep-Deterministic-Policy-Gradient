@@ -5,6 +5,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from hyperparameters import *
+
 def hidden_init(layer):
     fan_in = layer.weight.data.size()[0]
     lim = 1. / np.sqrt(fan_in)
@@ -14,16 +16,15 @@ def hidden_init(layer):
 # sometimes called Actor
 class Policy_network(nn.Module):
 
-    def __init__(self, state_size, action_size, seed, filename,param, hidden_layer_sizes=[400,300]):
+    def __init__(self, state_size, action_size, seed, filename, hidden_layer_sizes=[400,300]):
         super(Policy_network, self).__init__()
         torch.manual_seed(seed)
         self.hidden_layer_1 = nn.Linear(state_size, hidden_layer_sizes[0])
         self.hidden_layer_2 = nn.Linear(hidden_layer_sizes[0], hidden_layer_sizes[1])
         self.output = nn.Linear(hidden_layer_sizes[1], action_size)
-        self.param=param
         self.reset_parameters()
         # load weights and biases if given
-        if self.param.LOAD:
+        if LOAD:
             self.load_state_dict(torch.load(filename))
             print("Values loaded")
 
@@ -58,16 +59,15 @@ class Policy_network(nn.Module):
 # sometimes called critic
 class Q_network(nn.Module):
 
-    def __init__(self, state_size, action_size, seed,filename,param, hidden_layer_sizes=[400,300]):
+    def __init__(self, state_size, action_size, seed,filename, hidden_layer_sizes=[400,300]):
         super(Q_network, self).__init__()
         torch.manual_seed(seed)
         self.hidden_layer_1 = nn.Linear(state_size, hidden_layer_sizes[0])
         self.hidden_layer_2 = nn.Linear(hidden_layer_sizes[0]+action_size, hidden_layer_sizes[1])
         self.output = nn.Linear(hidden_layer_sizes[1], 1)
-        self.param=param
         self.reset_parameters()
         # load weights and biases if given
-        if self.param.LOAD:
+        if LOAD:
             self.load_state_dict(torch.load(filename))
             print("Values loaded")
 

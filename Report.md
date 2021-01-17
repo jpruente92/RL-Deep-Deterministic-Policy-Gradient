@@ -35,10 +35,10 @@ WEIGHT_DECAY = 0        # L2 weight decay
 
 ### Results:
 The following figure displays the score of the agent during the learning process over 175 episodes, each consisting of 1000 steps. The average score per episode in the episodes 75-175 is 30.0 and therefore the environment is considered solved after 525 episodes. 
-![alt text](./reacher_20.png)
+![alt text](Scores/reacher_20.png)
 
 The following gif file displays the trained version:
-![](reacher_trained.gif)
+![](Scores/reacher_trained.gif)
 
  
 
