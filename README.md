@@ -1,4 +1,4 @@
-# RL_class_project_2
+# Deep Deterministic Policy Gradient
 
 This project is an implementation of a the Deterministic Deep Policy Gradient algorithm for solving a unity environment.
 
